@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>tinapay :3</title>
+<link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  overflow-x: hidden;
+  font-family: 'Architects Daughter', cursive;
+  color: white;
+  scroll-behavior: smooth;
+  cursor: none;
+}
+
+/* CURSOR */
+#cursor {
+  position: fixed;
+  pointer-events: none;
+  z-index: 999999;
+  transform: translate(-50%, -50%);
+  font-size: 18px;
+  will-change: left, top;
+  top: -40px; left: -40px;
+}
+#cursor.clicking { transform: translate(-50%, -50%) scale(1.6); }
+
+/* PETALS */
+.petals-container {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none; z-index: 0; overflow: hidden;
+}
+.petal {
+  position: absolute; top: -30px; font-size: 16px; opacity: 0.6;
+  animation: petalFall linear infinite; will-change: transform;
+}
+@keyframes petalFall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+  100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
+
+/* STARS */
+.stars-container {
+  position: absolute; inset: 0;
+  pointer-events: none; overflow: hidden; z-index: 0;
+}
+.star {
+  position: absolute; background: white; border-radius: 50%;
+  animation: twinkle ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%,100% { opacity: 0.1; transform: scale(1); }
+  50%      { opacity: 0.9; transform: scale(1.4); }
+}
+
+/* SECTION */
+.section {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 70px;
+  background-size: cover; background-position: center;
+  background-repeat: no-repeat; background-attachment: fixed;
+  position: relative; z-index: 1;
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.section::before {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.65));
+  z-index: 0;
+}
+.section.show-section { opacity: 1; transform: translateY(0); }
+.section > * { position: relative; z-index: 1; }
+.dynamic-section { display: none; }
+
+/* OVERLAY */
+.overlay {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  padding: 60px; border-radius: 20px;
+  width: 90%; max-width: 1000px;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.row    { display: flex; align-items: center; justify-content: center; gap: 40px; flex-wrap: wrap; }
+.column { display: flex; flex-direction: column; align-items: center; text-align: center; }
+
+/* FADE-IN SYSTEM */
+.anim {
+  opacity: 0;
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.anim.from-left   { transform: translateX(-60px); }
+.anim.from-right  { transform: translateX(60px); }
+.anim.from-top    { transform: translateY(-40px); }
+.anim.from-bottom { transform: translateY(40px); }
+.anim.visible {
+  opacity: 1;
+  transform: translateX(0) translateY(0) !important;
+}
+
+/* IMAGES */
+.img {
+  width: 100%; max-width: 450px; border-radius: 20px; height: auto;
+  cursor: none; box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: block;
+}
+.img:hover { transform: scale(1.04); box-shadow: 0 0 22px rgba(255,255,255,0.25); }
+.img.anim { opacity: 0; transform: scale(0.95); }
+.img.anim.visible { opacity: 1; transform: scale(1) !important; }
+@keyframes clickPop {
+  0%  { transform: scale(1); }
+  50% { transform: scale(1.12) rotate(1deg); }
+  100%{ transform: scale(1); }
+}
+.img.clicked { animation: clickPop 0.35s ease; }
+
+/* LIGHTBOX */
+#lightboxOverlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.88);
+  display: none; justify-content: center; align-items: center; z-index: 9999;
+}
+#lightboxOverlay img { max-width: 90%; max-height: 90%; border-radius: 14px; }
+
+.section4-text { margin-top: 22px; text-align: center; width: 100%; }
+
+/* SECTION 6 ARROWS */
+.arrow-img {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 56px; height: 56px; cursor: none; z-index: 10;
+  transition: opacity 0.3s; border-radius: 50%; object-fit: cover;
+}
+.arrow-left  { left: 10px; display: none; }
+.arrow-right { right: 10px; }
+
+/* OVERLAY SLIDES */
+.overlay-slide {
+  position: absolute; width: 80%; max-width: 700px;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  opacity: 0; transform: translateX(80px); pointer-events: none;
+}
+.overlay-visible { opacity: 1; transform: translateX(0); pointer-events: auto; }
+
+/* BUTTONS */
+button {
+  margin-top: 18px; padding: 11px 24px; border: none;
+  border-radius: 25px; background: white; color: black;
+  cursor: none; font-size: 1em; transition: transform 0.2s ease;
+  font-family: 'Architects Daughter', cursive;
+}
+button:hover  { transform: scale(1.07); }
+button:active { transform: scale(0.94); }
+.yes-btn  { background: #4CAF50; color: white; }
+.no-btn   { background: #e74c3c; color: white; }
+.back-btn { background: #ff69b4; color: white; }
+.yes-btn  { animation: yesGlow 2.5s ease-in-out infinite; }
+@keyframes yesGlow {
+  0%,100% { box-shadow: 0 0 0 0 rgba(76,175,80,0.4); }
+  50%      { box-shadow: 0 0 18px 6px rgba(76,175,80,0.35); }
+}
+
+/* TEXTAREA */
+textarea {
+  border-radius: 14px; padding: 14px; border: none; outline: none;
+  font-size: 1em; resize: none;
+  background: rgba(255,255,255,0.9); color: black;
+  box-shadow: 0 0 12px rgba(0,0,0,0.15);
+  font-family: 'Architects Daughter', cursive; width: 100%; margin-top: 12px;
+}
+
+/* MUSIC BTN */
+#musicBtn {
+  position: fixed; bottom: 20px; right: 20px;
+  background: rgba(0,0,0,0.55); border-radius: 50%;
+  width: 56px; height: 56px; display: flex;
+  align-items: center; justify-content: center;
+  cursor: none; font-size: 20px; z-index: 9999; border: none;
+  animation: pulse 8s infinite;
+}
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.35); }
+  60%      { box-shadow: 0 0 0 12px rgba(255,255,255,0); }
+}
+
+body { opacity: 0; transition: opacity 1s ease; }
+body.loaded { opacity: 1; }
+
+.scroll-hint {
+  position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
+  font-size: 13px; opacity: 0.65; animation: floatHint 1.5s ease-in-out infinite;
+}
+@keyframes floatHint {
+  0%,100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(7px); }
+}
+
+/* FLOATING HEARTS */
+.heart {
+  position: fixed; pointer-events: none;
+  animation: floatUp 0.9s ease forwards; z-index: 99999; font-size: 18px;
+}
+@keyframes floatUp { to { transform: translateY(-90px); opacity: 0; } }
+
+/* ENVELOPE */
+#envelope-wrap { position: relative; width: 260px; height: 165px; cursor: none; margin: 0 auto 24px; }
+.envelope {
+  width: 100%; height: 100%; position: relative;
+  background: #ffe0ec; border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25); overflow: visible; transition: transform 0.3s;
+}
+.envelope:hover { transform: scale(1.03); }
+.envelope-flap {
+  position: absolute; top: 0; left: 0; right: 0; height: 50%;
+  background: #ffb3ce; clip-path: polygon(0 0, 50% 100%, 100% 0);
+  transform-origin: top center; transition: transform 0.55s ease; z-index: 2;
+}
+.envelope.open .envelope-flap { transform: rotateX(175deg); }
+.envelope-letter {
+  position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+  background: white; width: 78%; height: 55%;
+  border-radius: 6px; display: flex; align-items: center;
+  justify-content: center; font-size: 24px; color: #865b71;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: transform 0.55s ease 0.25s; z-index: 1;
+}
+.envelope.open .envelope-letter { transform: translateX(-50%) translateY(-110%); }
+
+/* FUN FACT CARD */
+.funfact-wrap {
+  margin-top: 20px; width: 100%; max-width: 420px;
+}
+.funfact-toggle {
+  background: rgba(134,91,113,0.18);
+  border: 1.5px dashed #d14f8a;
+  border-radius: 14px;
+  padding: 12px 20px;
+  cursor: none;
+  width: 100%;
+  color: #865b71;
+  font-size: 0.93em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.25s, transform 0.2s;
+  margin-top: 0;
+}
+.funfact-toggle:hover { background: rgba(134,91,113,0.28); }
+.funfact-body {
+  display: none;
+  margin-top: 10px;
+  background: rgba(255,182,193,0.18);
+  border: 1px solid rgba(255,182,193,0.35);
+  border-radius: 14px;
+  padding: 16px 18px;
+  color: #5a2d40;
+  font-size: 0.92em;
+  line-height: 1.75;
+  text-align: left;
+  animation: fadeSlideDown 0.35s ease;
+}
+.funfact-body.open { display: block; }
+@keyframes fadeSlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.funfact-icon { font-size: 1.1em; }
+
+/* AUTO SCROLL BUTTON */
+#autoScrollBtn {
+  position: fixed;
+  bottom: 86px;
+  left: 20px;
+  background: rgba(0,0,0,0.55);
+  border-radius: 50px;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: white;
+  border: none;
+  cursor: none;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.7;
+  transition: opacity 0.2s, transform 0.2s;
+  margin: 0;
+  animation: none;
+}
+#autoScrollBtn:hover { opacity: 1; }
+#autoScrollBtn.scrolling { background: rgba(209,79,138,0.75); }
+
+/* DAYS COUNTER */
+#days-counter {
+  background: rgba(255,255,255,0.14); border-radius: 14px;
+  padding: 16px 26px; margin: 18px auto 0;
+  border: 1px solid rgba(255,255,255,0.22);
+  display: inline-block; backdrop-filter: blur(6px); color: #333;
+}
+#days-counter span { font-size: 2.2em; display: block; color: #d14f8a; }
+
+/* CAROUSEL */
+#carousel-wrap {
+  position: relative; width: 100%; max-width: 480px;
+  margin: 0 auto; overflow: hidden; border-radius: 14px;
+}
+.carousel-track { display: flex; transition: transform 0.45s ease; }
+.carousel-slide { min-width: 100%; position: relative; }
+.carousel-slide img {
+  width: 100%; border-radius: 14px; display: block;
+  max-height: 320px; object-fit: cover;
+}
+.carousel-caption {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.65));
+  padding: 18px 12px 12px; border-radius: 0 0 14px 14px;
+  font-size: 13px; text-align: center;
+}
+.carousel-btn {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: rgba(255,255,255,0.22); border: none; color: white;
+  font-size: 20px; width: 38px; height: 38px; border-radius: 50%;
+  cursor: none; z-index: 5; backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0; padding: 0; transition: background 0.2s;
+}
+.carousel-btn:hover { background: rgba(255,255,255,0.38); }
+.carousel-btn.prev { left: 8px; }
+.carousel-btn.next { right: 8px; }
+.carousel-dots { display: flex; justify-content: center; gap: 7px; margin-top: 10px; }
+.carousel-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(255,255,255,0.38); cursor: none; transition: all 0.25s;
+}
+.carousel-dot.active { background: white; transform: scale(1.3); }
+
+/* QUIZ */
+#quiz-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.88);
+  z-index: 99990; display: none; align-items: center; justify-content: center;
+}
+#quiz-box {
+  background: rgba(255,255,255,0.09); backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.18); border-radius: 22px;
+  padding: 46px; max-width: 500px; width: 90%; text-align: center; position: relative;
+}
+#quiz-box h2 { margin-bottom: 8px; color: #ffb3d1; }
+#quiz-box > p { margin-bottom: 20px; opacity: 0.75; font-size: 13px; }
+.quiz-question { font-size: 1.05em; margin-bottom: 18px; line-height: 1.55; }
+.quiz-options  { display: flex; flex-direction: column; gap: 10px; }
+.quiz-option {
+  background: rgba(255,255,255,0.11); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 11px; padding: 11px 16px; cursor: none;
+  transition: background 0.2s, transform 0.2s;
+  text-align: left; color: white; font-size: 0.93em;
+  font-family: 'Architects Daughter', cursive; margin: 0;
+}
+.quiz-option:hover  { background: rgba(255,255,255,0.22); transform: scale(1.02); }
+.quiz-option.correct{ background: rgba(76,175,80,0.45); border-color: #4CAF50; }
+.quiz-option.wrong  { background: rgba(231,76,60,0.45);  border-color: #e74c3c; }
+#quiz-score { font-size: 1.7em; margin: 18px 0; color: #ffb3d1; }
+#quiz-close {
+  position: absolute; top: 14px; right: 18px;
+  background: none; border: none; color: white;
+  font-size: 26px; cursor: none; margin: 0; padding: 0; line-height: 1;
+}
+
+/* TYPING INDICATOR */
+.typing-indicator {
+  display: none; gap: 5px; align-items: center;
+  background: rgba(255,255,255,0.13); padding: 9px 15px;
+  border-radius: 20px; margin: 10px auto; width: fit-content;
+}
+.typing-indicator.show { display: inline-flex; }
+.typing-indicator span {
+  width: 7px; height: 7px; background: white; border-radius: 50%;
+  animation: typingBounce 0.9s infinite;
+}
+.typing-indicator span:nth-child(2) { animation-delay: 0.18s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.36s; }
+@keyframes typingBounce {
+  0%,80%,100% { transform: translateY(0); opacity: 0.45; }
+  40%          { transform: translateY(-7px); opacity: 1; }
+}
+
+/* REACTION BURST */
+.reaction {
+  position: fixed; pointer-events: none; font-size: 24px;
+  animation: burstUp 1.1s ease forwards; z-index: 99999;
+}
+@keyframes burstUp {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-110px) scale(1.3); }
+}
+
+/* PAGE WIPE */
+#page-transition {
+  position: fixed; inset: 0; background: #ff69b4;
+  z-index: 999990; pointer-events: none;
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.32s ease;
+}
+
+/* SECRET TRIGGER */
+#secret-trigger {
+  position: fixed; bottom: 88px; right: 22px;
+  font-size: 11px; opacity: 0.35; z-index: 9998;
+  cursor: none; writing-mode: vertical-rl;
+  animation: secretPulse 3s ease-in-out infinite; user-select: none;
+}
+@keyframes secretPulse { 0%,100%{opacity:0.18} 50%{opacity:0.5} }
+
+/* MESSAGE CARD */
+.message-card {
+  background: rgba(255,255,255,0.12); border-radius: 16px;
+  padding: 22px; margin-top: 14px; text-align: left;
+  border: 1px solid rgba(255,255,255,0.18); font-size: 0.95em;
+  line-height: 1.7; white-space: pre-wrap;
+}
+
+/* REASONS CARDS */
+.reasons-wrap {
+  position: relative; width: 100%; max-width: 420px;
+  height: 200px; margin: 20px auto;
+}
+.reason-card {
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 18px; padding: 28px 24px;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; font-size: 1.05em; line-height: 1.6;
+  opacity: 0; transform: translateY(18px) scale(0.97);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  pointer-events: none; backdrop-filter: blur(8px);
+}
+.reason-card.active { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+.reason-nav {
+  display: flex; gap: 12px; justify-content: center;
+  align-items: center; margin-top: 12px; flex-wrap: wrap;
+}
+.reason-counter { font-size: 12px; opacity: 0.6; min-width: 60px; text-align: center; }
+
+/* POLAROIDS */
+.polaroid-wall {
+  display: flex; flex-wrap: wrap; gap: 22px;
+  justify-content: center; margin-top: 18px;
+}
+.polaroid {
+  background: white; padding: 12px 12px 36px;
+  border-radius: 4px; box-shadow: 0 6px 22px rgba(0,0,0,0.45);
+  width: 150px; cursor: none; transition: transform 0.3s ease;
+  transform: rotate(var(--rot));
+}
+.polaroid:nth-child(even) { transform: rotate(calc(var(--rot) * -1)); }
+.polaroid:hover { transform: rotate(0deg) scale(1.08) !important; z-index: 2; }
+.polaroid img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; border-radius: 2px; }
+.polaroid-caption { color: #555; font-size: 11px; text-align: center; margin-top: 8px; line-height: 1.4; }
+
+/* SECRET REVEAL */
+#secretReveal {
+  position: fixed; inset: 0; z-index: 99980;
+  display: none; align-items: center; justify-content: center;
+  background-image: url('miku yes.gif');
+  background-size: cover; background-position: center;
+}
+#secretReveal::before {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(0,0,0,0.6); z-index: 0;
+}
+#secretReveal > div { position: relative; z-index: 1; }
+
+/* FINAL NOTE */
+#finalNote {
+  position: fixed; inset: 0; z-index: 99970;
+  display: none; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.92);
+}
+#finalNote > div {
+  background: rgba(255,255,255,0.07); backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,0.2); border-radius: 22px;
+  padding: 48px; max-width: 500px; width: 90%; text-align: center;
+}
+#finalNote h2 { color: #ffb3d1; margin-bottom: 16px; }
+#finalNote p  { line-height: 1.85; font-size: 1em; opacity: 0.9; }
+
+@keyframes pop { 0%{transform:scale(0.8)} 100%{transform:scale(1)} }
+.pop { animation: pop 0.35s ease; }
+
+@media (max-width: 768px) {
+  .overlay { padding: 22px; }
+  .row { flex-direction: column; gap: 18px; }
+  .section { padding: 30px 18px; }
+  .polaroid { width: 120px; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor">🌸</div>
+<div class="petals-container" id="petalsContainer"></div>
+<div id="page-transition"></div>
+
+<audio id="bgMusic" loop>
+  <source src="old love.mp3" type="audio/mpeg">
+</audio>
+<button id="musicBtn">🔊</button>
+<div id="secret-trigger" onclick="openQuiz()">psst 🌸</div>
+
+<!-- AUTO SCROLL BUTTON -->
+<button id="autoScrollBtn" onclick="toggleAutoScroll()">▼ auto scroll</button>
+
+<!-- LIGHTBOX -->
+<div id="lightboxOverlay" onclick="this.style.display='none'">
+  <img id="lightboxImg" src="">
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-overlay">
+  <div id="quiz-box">
+    <button id="quiz-close" onclick="closeQuiz()">×</button>
+    <h2>🌸 How Well Do You Know Me?</h2>
+    <p>A little quiz I made just for you~</p>
+    <div id="quiz-content"></div>
+  </div>
+</div>
+
+<!-- SECRET REVEAL -->
+<div id="secretReveal">
+  <div class="overlay column" style="max-width:560px; text-align:center;">
+    <h2 style="color:#ffb3d1; font-size:1.4em;">osigi,, </h2>
+    <p style="margin-top:14px; line-height:1.85; font-size:1.05em;">
+      this whole website was just my way of <br>
+      <strong style="font-size:1.2em; color:#ffd1ec;">confessing..</strong><br><br>
+      every section, every little detail,<br>
+      every corny thing I wrote —<br>
+      all of it was for you, Christine.<br><br>
+      I hope it made you smile at least once ! :3
+    </p>
+    <button class="back-btn" onclick="closeSecretReveal()" style="margin-top:22px;">Close 💗</button>
+  </div>
+</div>
+
+
+
+<!-- ======= STATIC SECTIONS ======= -->
+
+<!-- SECTION 1 -->
+<div class="section" style="background-image: url('pic1.jpg')">
+  <div class="overlay column anim from-top" style="background: rgba(255,255,255,0.85); color: black; text-align: center;">
+
+    <div id="envelope-wrap" onclick="openEnvelope()">
+      <div class="envelope" id="mainEnvelope">
+        <div class="envelope-flap"></div>
+        <div class="envelope-letter">💌</div>
+      </div>
+    </div>
+    <p id="envelope-hint" style="color:#865b71; margin-top:10px;">click the envelope!</p>
+
+    <div id="envelope-content" style="display:none;">
+      <img src="ig pfp.jpg" class="img anim from-top" style="max-width:250px; margin: 16px auto;">
+      <h1 style="color:#865b71; margin-bottom:12px;">Hello Christine!</h1>
+      <p style="color:#555; line-height:1.7;">
+        How did you find this?<br>
+        I made this for you because I wanted to tell you something !!<br>
+        I just didn't know how to say it in person..<br>
+        I hope you like this little website I made for you :3
+      </p>
+
+      <!-- FUN FACT CARD -->
+      <div class="funfact-wrap">
+        <button class="funfact-toggle" onclick="toggleFunFact()" id="funfactToggle">
+          <span class="funfact-icon">🐱</span>
+          lam mo ba? (click dis)
+          <span id="funfactArrow">▾</span>
+        </button>
+        <div class="funfact-body" id="funfactBody">
+          did you know i really liked this profile picture that you made for me?
+          i didn't make it my instagram profile picture for nothing :3
+          dats one of my hints nyahahaha 😼😼
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="scroll-hint">↓ scroll</div>
+</div>
+
+<!-- SECTION 2 -->
+<div class="section" style="background-image: url('pic1.jpg')">
+  <div class="row">
+    <img src="common.jpg" class="img anim from-left">
+    <div class="overlay column anim from-right" style="background: rgba(255,255,255,0.85); color: black; text-align: left; max-width: 450px;">
+      <p style="line-height:1.8;">
+        So…<br><br>
+        We have a <strong>lot</strong> in common<br>
+        We have the <strong>same</strong> humor<br>
+        We got close super fast! It really felt like I've known you for a year.<br>
+        You're also smart, kind, and funny, and I really admire you for that.<br>
+        Tapos parehas pa tayong <strong>baliw</strong><br><br>
+        I think that's a sign that we should be together 😆😆
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<!-- SECTION 5 — CONFESSION -->
+<div class="section" style="background-image: url('miku yes.gif')">
+  <div class="stars-container" id="starsContainer"></div>
+  <div class="anim from-bottom" style="text-align:center; max-width:680px; line-height:2; padding:20px;">
+    <p style="font-size:1.08em;">
+      I honestly don't know how you're feeling<br><br>
+      I've also given this a lot of thought<br>
+      I just hope that you like me too!<br><br>
+      <strong style="text-shadow:0 0 10px rgba(255,255,255,0.7);">I like you, Christine! :3</strong><br><br>
+      I seriously don't know what to expect when you see this<br>
+    </p>
+  </div>
+</div>
+
+
+<!-- SECTION 5.5 — REASONS -->
+<div class="section" style="background-image: url('bass bg 2.jpg')">
+  <div class="overlay column anim from-top" style="max-width:720px; text-align:center; padding:100px;">
+    <h2 style="color:#ffb3d1; margin-bottom:6px;">Fun facts about ya :3</h2>
+    <p style="opacity:0.7; font-size:13px; margin-bottom:4px;">click dem one by one!!</p>
+    <div class="reasons-wrap" id="reasonsWrap"></div>
+    <div class="reason-nav">
+      <button class="back-btn" onclick="prevReason()" style="margin:0; padding:9px 18px;">←</button>
+      <span class="reason-counter" id="reasonCounter">1 / 128</span>
+      <button class="yes-btn" onclick="nextReason()" style="margin:0; padding:9px 18px; animation:none;">→</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- SECTION 6 -->
+<div id="section6" class="section" style="background-image: url('last bg.jpg');">
+  <div id="overlay1" class="overlay-slide overlay-visible column" style="text-align:center;">
+    <h1>Can you be honest?</h1>
+    <p style="margin-top:12px;">I hope you feel the same way!!</p>
+  </div>
+  <div id="overlay2" class="overlay-slide column" style="text-align:center;">
+    <p>Have you given it some thought?</p>
+  </div>
+  <div id="overlay3" class="overlay-slide column" style="text-align:center;">
+    <p>So… do you like me too?</p>
+    <div style="display:flex; justify-content:center; gap:18px; margin-top:18px; flex-wrap:wrap;">
+      <button class="yes-btn" onclick="showYes()">Yes 🫨</button>
+      <button class="no-btn"  onclick="showNo()" style="animation:none;">No 😔</button>
+    </div>
+  </div>
+  <img src="carousel.jpg" class="arrow-img arrow-right" id="rightArrow" onclick="nextOverlay()">
+  <img src="carousel.jpg" class="arrow-img arrow-left"  id="leftArrow"  onclick="prevOverlay()">
+</div>
+
+<!-- ======= DYNAMIC SECTIONS ======= -->
+
+<!-- YES -->
+<div id="yesSection" class="section dynamic-section" style="background-image: url('reze\ bg.jpg');">
+  <div class="overlay column" style="text-align:center;">
+    <h1 class="pop">YAYAYAYAYAYAYAYAYYYY !!!</h1>
+    <div class="typing-indicator" id="yesTyping"><span></span><span></span><span></span></div>
+    <p id="yesText" style="display:none; margin-top:8px;"></p>
+    <button class="back-btn" onclick="goBack()" style="margin-top:16px;">Go back</button>
+    <button id="yesContinueBtn" class="yes-btn" style="display:none;" onclick="nextYesSection()">Continue →</button>
+  </div>
+</div>
+
+<!-- NO -->
+<div id="noSection" class="section dynamic-section" style="background-image: url('bass bg 2.jpg');">
+  <div class="overlay column" style="text-align:center;">
+    <h2>I see :(</h2>
+    <div class="typing-indicator" id="noTyping"><span></span><span></span><span></span></div>
+    <p id="fakeReply" style="display:none; margin:10px 0;"></p>
+    <textarea id="answerBox" rows="4" placeholder="Why nott?" style="display:none;"></textarea>
+    <button class="yes-btn" id="submitAnswerBtn" style="display:none;" onclick="saveAnswer()">Submit</button>
+    <p> dis doesn't work just chat me why LOL*</p>
+    <p id="savedAnswer" style="margin-top:10px;"></p>
+    <button class="back-btn" onclick="goBack()">Go back</button>
+    <button id="noContinueBtn" class="yes-btn" style="display:none;" onclick="nextNoSection()">Continue →</button>
+  </div>
+</div>
+
+<!-- YES: Celebration -->
+<div id="yesCelebration" class="section dynamic-section" style="background-image: url('yes bg.jpg');">
+  <div class="overlay column" style="text-align:center; padding:48px;">
+    <h1 class="pop">Thank youu!</h1>
+    <p style="margin-top:12px;">I'm so happy you feel the same 😼😼<br></p>
+    <div style="margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+      <button class="back-btn" onclick="goBack()">Go back</button>
+      <button class="yes-btn" onclick="nextYesSection()">Next</button>
+    </div>
+  </div>
+</div>
+
+<!-- YES: Plans -->
+<div id="yesFun" class="section dynamic-section" style="background-image: url('yes bg.jpg');">
+  <div class="overlay column" style="text-align:center; padding:48px;">
+    <h2 class="pop">So what now?</h2>
+    <p style="margin-top:10px;">Choose one !!</p>
+    <div style="margin-top:16px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+      <button class="yes-btn" onclick="selectPlan('Talking about it')">Talk about it</button>
+      <button class="yes-btn" onclick="selectPlan('Awkward Silence...')">Awkward Silence</button>
+      <button class="yes-btn" onclick="selectPlan('Play a game together')">Mag CODM..</button>
+    </div>
+    <button class="yes-btn" onclick="submitCustomPlan()">Submit Plan</button>
+    <p id="planFeedback" style="margin-top:12px;"></p>
+    <div style="margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+      <button class="back-btn" onclick="goBack()">Go back</button>
+      <button class="yes-btn" onclick="finishFlow()">Finish </button>
+    </div>
+  </div>
+</div>
+
+<!-- NO: Comfort -->
+<div id="noComfort" class="section dynamic-section" style="background-image: url('bass\ bg\ 2.jpg');">
+  <div class="overlay column" style="text-align:center; padding:48px;">
+    <h2>It's okay! 💛</h2>
+    <p style="margin-top:10px;">I still really value our friendship.<br>We can stay just as close as before!</p>
+    <p id="friendFeedback" style="margin-top:12px;"></p>
+    <div style="margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+      <button class="back-btn" onclick="goBack()">Go back</button>
+      <button class="yes-btn" onclick="nextNoSection()">Next</button>
+    </div>
+  </div>
+</div>
+
+<!-- NO: Leave a message -->
+<div id="noFun" class="section dynamic-section" style="background-image: url('bass\ bg\ 2.jpg');">
+  <div class="overlay column" style="text-align:center; padding:48px;">
+    <h2>Leave me a message 💌</h2>
+    <p style="margin-top:10px; line-height:1.7;">
+      Even if it's a no, I just want to hear something from you.<br><br>
+      Send it to me privately..!
+    </p>
+    <textarea id="messageBox" rows="5" placeholder="Write something for me here... 💛"></textarea>
+    <button class="yes-btn" onclick="submitMessage()">Send 💌</button>
+    <div id="messagePreview" style="display:none;">
+      <div class="message-card" id="messageCard"></div>
+      <p style="margin-top:10px; opacity:0.75; font-size:13px;">I'll treasure this 💛</p>
+    </div>
+    <div style="margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+      <button class="back-btn" onclick="goBack()">Go back</button>
+      <button class="yes-btn" onclick="finishFlow()">Finish 💛</button>
+    </div>
+  </div>
+</div>
+
+<!-- ENDING -->
+<div id="endingSection" class="section dynamic-section" style="background-image: url('last bg.jpg');">
+  <div class="overlay column" style="text-align:center; padding:48px;">
+    <h1>Thanks for exploring! ❤️</h1>
+    <p style="margin-top:12px; line-height:1.7;">
+      I hope you had fun! 😊<br>
+      There's some mystery stuff here! Hope you found it nyahahahah 😼
+    </p>
+    <p style="margin-top:10px;">Don't forget to think about it..!</p>
+    <p style="opacity:0.6; font-size:13px; margin-top:6px;">*plz think about it 😓*</p>
+    <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:20px;">
+      <button class="back-btn" onclick="goBack()">Go back</button>
+      <button onclick="showDetails()">Details About This Website</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAILS SECTION -->
+<div id="section-details" class="section dynamic-section" style="background-image: url('last.jpg');">
+  <div class="overlay column" style="max-width:700px; text-align:center;">
+    <img src="ig pfp.jpg" class="img" style="max-width:110px; border-radius:50%; margin-bottom:14px;">
+    <h2 style="color:#ffb3d1;">Website Details 😼😼</h2>
+    <div class="message-card" style="margin-top:14px; text-align:left;">
+      <p><strong>Created on:</strong> 7/4/26</p>
+      <p style="margin-top:6px;"><strong>Total time spent:</strong> ~10 hours (brainstorming + coding)</p>
+      <p style="margin-top:6px;"><strong>Purpose:</strong> A secret little project for Christine (di nia alam to guys)💌</p>
+      <p style="margin-top:6px;"><strong>Built with:</strong> HTML, CSS, JavaScript… and a lot of overthinking ngl</p>
+    </div>
+    <button onclick="openSecretReveal()" class="yes-btn" style="margin-top:24px;">
+      Click dis if u are curious!!
+    </button>
+    <button onclick="window.open('https://open.spotify.com/track/0qWoOHqTirzo59FQ9eoECH?si=ebc7beb2b5ea47f8','_blank')" style="margin-top:10px;">
+      🎵 Song that reminds me of you
+    </button>
+    <button class="back-btn" onclick="goBack()" style="margin-top:10px;">Go back</button>
+  </div>
+</div>
+
+<script>
+// ===== INIT =====
+if (localStorage.getItem('visited')) alert('You came back… 👀');
+localStorage.setItem('visited', 'yes');
+window.addEventListener('load', () => document.body.classList.add('loaded'));
+
+// ===== CURSOR =====
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+}, { passive: true });
+document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
+document.addEventListener('mouseup',   () => cursor.classList.remove('clicking'));
+
+// ===== PETALS =====
+(function() {
+  const container = document.getElementById('petalsContainer');
+  const emojis = ['🌸','🌷','💗','✨','🌺'];
+  for (let i = 0; i < 14; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.innerText = emojis[i % emojis.length];
+    p.style.left             = (Math.random() * 100) + 'vw';
+    p.style.fontSize         = (13 + Math.random() * 10) + 'px';
+    p.style.animationDuration= (7 + Math.random() * 10) + 's';
+    p.style.animationDelay   = (-Math.random() * 12) + 's';
+    p.style.opacity          = String(0.4 + Math.random() * 0.35);
+    container.appendChild(p);
+  }
+})();
+
+// ===== STARS =====
+(function() {
+  const c = document.getElementById('starsContainer');
+  for (let i = 0; i < 40; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = 1 + Math.random() * 2.5;
+    s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*3}s;animation-delay:${-Math.random()*4}s;`;
+    c.appendChild(s);
+  }
+})();
+
+// ===== FUN FACT TOGGLE =====
+function toggleFunFact() {
+  const body  = document.getElementById('funfactBody');
+  const arrow = document.getElementById('funfactArrow');
+  const isOpen = body.classList.toggle('open');
+  arrow.textContent = isOpen ? '▴' : '▾';
+}
+
+// ===== AUTO SCROLL =====
+let autoScrolling = false;
+let autoScrollRAF = null;
+const SCROLL_SPEED = 1.2; // px per frame — increase to go faster
+
+function getSection6Bottom() {
+  const s6 = document.getElementById('section6');
+  return s6.offsetTop + s6.offsetHeight;
+}
+
+function autoScrollStep() {
+  if (!autoScrolling) return;
+
+  const target = getSection6Bottom() - window.innerHeight;
+  const current = window.scrollY;
+
+  if (current >= target) {
+    // reached section 6 — stop
+    stopAutoScroll();
+    // snap exactly to section 6 top
+    document.getElementById('section6').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+
+  window.scrollBy(0, SCROLL_SPEED);
+  autoScrollRAF = requestAnimationFrame(autoScrollStep);
+}
+
+function startAutoScroll() {
+  autoScrolling = true;
+  const btn = document.getElementById('autoScrollBtn');
+  btn.textContent = '■ stop scroll';
+  btn.classList.add('scrolling');
+  autoScrollRAF = requestAnimationFrame(autoScrollStep);
+}
+
+function stopAutoScroll() {
+  autoScrolling = false;
+  if (autoScrollRAF) { cancelAnimationFrame(autoScrollRAF); autoScrollRAF = null; }
+  const btn = document.getElementById('autoScrollBtn');
+  btn.textContent = '▼ auto scroll';
+  btn.classList.remove('scrolling');
+}
+
+function toggleAutoScroll() {
+  if (autoScrolling) stopAutoScroll();
+  else startAutoScroll();
+}
+
+// Stop auto scroll if user manually scrolls
+window.addEventListener('wheel',     () => { if (autoScrolling) stopAutoScroll(); }, { passive: true });
+window.addEventListener('touchmove', () => { if (autoScrolling) stopAutoScroll(); }, { passive: true });
+window.addEventListener('keydown',   e  => {
+  if (autoScrolling && ['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(e.key)) stopAutoScroll();
+});
+
+// Hide auto scroll button once dynamic sections take over
+const autoScrollBtn = document.getElementById('autoScrollBtn');
+const dynamicObserver = new MutationObserver(() => {
+  const anyDynamic = document.querySelector('.dynamic-section[style*="display: flex"]');
+  autoScrollBtn.style.display = anyDynamic ? 'none' : 'flex';
+});
+document.querySelectorAll('.dynamic-section').forEach(s =>
+  dynamicObserver.observe(s, { attributes: true, attributeFilter: ['style'] })
+);
+
+// ===== SCROLL OBSERVERS =====
+const secObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('show-section');
+    else e.target.classList.remove('show-section');
+  });
+}, { threshold: 0.12 });
+
+const animObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      animObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.section:not(.dynamic-section)').forEach(s => secObserver.observe(s));
+document.querySelectorAll('.anim').forEach(el => animObserver.observe(el));
+
+// ===== ENVELOPE =====
+let envelopeOpened = false;
+function openEnvelope() {
+  if (envelopeOpened) return;
+  envelopeOpened = true;
+  document.getElementById('mainEnvelope').classList.add('open');
+  document.getElementById('envelope-hint').innerText = '✉️ opening...';
+  setTimeout(() => {
+    const content = document.getElementById('envelope-content');
+    content.style.display = 'block';
+    document.getElementById('envelope-hint').innerText = '🌸 for you~';
+    content.querySelectorAll('.anim').forEach(el => animObserver.observe(el));
+  }, 750);
+}
+
+// ===== REASONS =====
+const reasons = [
+'- 9/26/2009',
+"- 5'3",
+'- nag usap 5/11/26 3pm ish',
+'- taga cainta rizal, lumipat cuz of pandemic',
+'- fav color - green and red',
+'- fav manhwa/kdrama - business proposal (rewatched 3 times)',
+'- nirecommend nia - the penthouse (fun fact nagbbinge watch sila dati ng tatay nia sa netflix)',
+'- fav transpo - bus cuz may ac',
+'- may english only policy sila nung elem tapos lumagapak grades nia tapos nagadjust sha non (nagsasalita ng dollarz)',
+'- likes dried mangoez and fav nya mango!!',
+'- during exchange gift niya may friend niya na gumawa ng capybara house tapos yung capybara nakahawak sa mismong gift nia (she was very very happy that time yayy!!)',
+'- may online friend sha na half filo but lives in the us',
+'- got her first robax sa twt trading dati (royale high and adopt me)',
+'- has a cat named cookie previously now trica because shes a tri colored cat! she remembered cookie cuz her mom told her abt it',
+'- nag tkd at 3yo and almost got black belt',
+'- kinagat yung kamay ng tatay niya sa vikings???',
+"- nag hs sa children's school of tomorrow",
+'- may business silang pizza woah',
+'- red golaman gusto nia',
+'- 5/20/26 nag open up ak tungkol sa utak kk or like how my brain works and she responded to all of my chats!! idk if shes being kind but wtf is this feeling?? idk i wont question it!!',
+'- uninteresting daw inner world niya (TRUSR ME ITS NOT!!! i am curious!! dont shut me off plz i wanna learn more abt youu)',
+'- wala ata shang inner monologue bro this is actually new!!!)',
+'- NAGING OREO GIRLIE dahil sa kaklase nya dati (elem)  na super mamimigay ng foods datii!! ',
+'- wala shang kaclose na pinsan nia 💔',
+'- nagsskip ng bfast!! 🙄',
+'- paborito nyang flavor nf piattos is sour cream tas fries bbq and sour cream!!',
+'- di pa nakakapunta sa tagaytay??',
+'- hindi marunong lumangoy HAHAAHAHHAHAHAAHAHHA',
+'- fav chilimansi flavor ng pancit canton',
+'- payless > pancit canton sa kanya',
+'- mahilig sa spicy food pero mababa tolerance',
+'- mahiluhin sha guyz 💔',
+'- first time nia makainom nung g10 sa tle class nya oml',
+'- nalasing sha tas pinagtripan ng math tr nia',
+'- super iyakin once na nalasing',
+'- not abt her but 5-24 bday ng nanay nia',
+'- she likes drumsticks ',
+'- tumaob yung bike sa kanya pls 😭',
+'- core memoriez: nalasing sha tas napahiya, ilang beses na shang nalunod (almost) sa swimming pool ng mga tropa nia, tapos nabagsakan ng isang buong bike',
+'- takutin',
+'- super clumsy niya guys, laging sinasamahan ng kapahamakan',
+'- fav number 9,21',
+'- fav pen: dell 0.7',
+'- number 1 hater nya talaga ak guys 🙄',
+'- 2 meals a day lang sha gois kasi di kaya ng tyan niya',
+'- abaw daw guys abaw, replacement for wow ?',
+'- june 2 nagsend ng fam pic niya from iloilo (cute niya soafer)',
+'- "ako, janella, kapatid ko, kuya cj (yung pinsan ko na nagccod), dave, tsaka si nash (yung nakayellow)" this genuienly took me 10 minutes to get it may 28 btw',
+'- may 29 sinabi ni janella sa kanya na may crush si nash sa kanya',
+'- BOI TANGINA BAT TUMAYO BULBOL NYAN ahh tangina buhok sa kamay.. sige.. sabi mo e.. ',
+'- natatakot sha makipag meetup sa mga online friends nia kasi baka makidnap ',
+'- tapos pumunta ng laguna para mameet online friend nia wataheck tas 11 lang sha non',
+'- takot siya makipag meetup dats so sadd',
+'- same kamai  gumagamit ng mnemonics',
+'- mabillis siyang magutom at mabusog omaygad',
+'- pinut butter paborito nia',
+'- nagbbackread talaga sia watafak omg thank u',
+'- lam niyo b na unang vc namen nashocks talaga ak sa boses nia like watafak its so soothing.. i luv voices like hers',
+'- christine mae servidad garcia (sigma daw yung s)',
+'- gagi ang ganda ng nails nya foril wtf tas maalaga siya talaga sa nails niya woahh tas mahilig rin siya magkulay ng nails niya dati 🥺',
+'- wow guys grabi yung ibis paint skills neto abot mars',
+'- bagay daw red and blo color sa nails k uwu',
+'- limang bag ginagamit nya sa school wtf',
+'- lagi niya dala yung capybara nia sa school so cute',
+'- suchi name ng posa nya na mukhang trica',
+'- ayaw niya yung dulo ng toge kasi matigas slightly relateable',
+'- ayaw niya ng tofu, talong pero nakain ng tortang talong, tas isda..',
+'- sabi nia intimidating daw sha tignan pag may makeup,, olol tignan natin.🥺',
+'- light makeup lang sha palagi kasi tinatamad siya mag heavy makeup.. and if bored sha kineme rrlateable if j was a girl',
+'- ig over tiktok yayy rrlatebale',
+'- fake sabi nia d sha pinapagalitan pag late natjthlog pero pinapagalitan sha 👎👎👎',
+'- di rin sya nakikinig nung oc tapos panay roblox at fenshjn suya guys tas nasa noo niya lagi yung cam 😭😭',
+'- TAENA PAG DI NIYA ALAM SAGOT MANINIGAS SIYA SA CAM TAS MAGLLEAVE NG MEETING 😭😭😭 TAWANG TAWA AKO DITO PRAMIS 😭😭😭 the man who cant be moved #mannequinchallenge',
+'- watafak guys open world enjoyer siya kasi gusto niya mag explore ',
+'- PAG DAW MAY KALABAN OR BOSSES SUMISIKIP DIBDIB NIYA AND KINAKABAHAN 😭😭 naovercome niya naman na guys dats good',
+'- d nya bet isda dahil sa lasa and texture pero nakain ng bangus but prefers gulay over fish',
+'- takes her an hour to walis,, tas ako p sasabihan mo na pagong hah!! 🙄',
+'- naiiyak na ata sa ganda ng story quest ni itto, she adores itto so much hehehe its so cute seeing her being happy about that story quest !! di raw sha makaget over don gois 😔😔 nyahahaha super wholesome daw and best story quest zo far ',
+'- taena lagi natatawa pag naaalala yung unang chat ko sa kanya ampp HAHHAHAHAHAHA',
+'- di sya mapakali sa upuan nya, lagi siyang naglalakad tuwing lunch or break time',
+'- taena guys nakita niya yung nilike kong mommy asmr tas sunod sunod na siyang nagsend ng kung ano ano sa reels niya 😭😭 kahit di k alam sasabihin k im grateful cuz she trusts me enough to send those kind of vids to me aka shes letting me in her own world guys !! very nice',
+'- 1st ex cheater, 2nd controlling manipulative (batman), 3rd ex good,, ',
+'- nung 12yo sha nagmamala ytber sha nagawa roblox vids (rblx: yuotuberfan46)',
+'- taena july 10 hanggang madaling araw ng july 11 nag uusap kame tas nakita nya yung mga pinagllike ko pakshet 😭 tas siya rin naman nagllike ng ganon 💔 aminin mo na may ganyang side ka rin nahihiya k lang 💔)',
+'- mahilig siya mag interview ng mga kaklase nya sa room gagi tas lagi naka video tas anrami non sa ig archive nya tas tangina dobrang random nag unboxing ng parcel ng kaibigan nya sa school??',
+'- anrandom guys nagsend sha ng interview vids nya saken nyahahaha she trusts me so much now tas ang kyot kyot nia gagi hehehe',
+'- taena nag spill na kame lahat lahat tungkol kay drake',
+'- mabilis maubos social battery nia same us',
+'- guys taena minsan nababasa k utak nya and i guessed it right that she wanted 5 more mins of sleep 🥺 so proud guys, idk why that made my heart skip a beat guys??',
+'- taena sobrang angas nya magedit sa canva and super creative nia,, wataheck guys',
+'- "looking for the hotdog to my repolyo" 😭😭😭 it was innocent for the first hour pero when we reread it thats like so dirty now',
+'- makulet at photobomber nung bata, lagi nakakasama sa mga picture dati nyahahaha 😼',
+'- tomboyish dati guys',
+'- mahilig rin mag dress up dress up dati!!',
+'- nagmana raw pagiging siraulo nya sa tatay nya??',
+'- ginugulo lahat ng tao sa paligid nia sabi nia 🙄🙄',
+'- taina ancute at ang energetic nia tignan sa baby pics nia gagu',
+'- spent my last week of summer vacation staying up late just to talk to her!! (ayos lang magkapimples basta nakakausap k to ng matagal) ',
+'- "nasisira na ang innocent image ko guys" sige hah 🥺🥺',
+'- achi kitty from manila, suchi kitty from dasma (galng si suchi sa kaklase niya dati i think,,)',
+'- lecheee inconsistent to magdrawing pero ang galing nya talaga tf?? raw talent talaga yan sis,, pakahumble humble pang nalalaman e 🙄',
+'- umiinom ng kopi peor pag nagccrave lang sia (mejo relateable)',
+'- pag magpapa alam sia sa nanay nya sasabihin niya wag daw siya payagan?? 😭 ay para lang pala kung d sya sure para mag no na nanay nya.. gets gets',
+'- leche nag ddaydream sa bus ng pagkain tas natitikman nia na 😭😭😭 (happened to me allat of times guys)',
+'- naglalakad pauwi woaah get those steps #strava',
+'- gagi update ng update saken 🥺🥺 (wat i love)',
+'- gusto k yung "muehehehe" niya guys para kasi siyang word na soaper jolly and energetic like showing joy muehehehe! hanggang ngayon :3 dats one thing i like about her!! i like da energy and being whimsy!! :3',
+'- guys strit sha talaga guys confirmed !! kala k talaga may side to na baliko e,, ',
+'- nagkacrush dati sa babae guys "dati" daw 🥺',
+'- napagkamalan na wlw nung hs 😭😭',
+'- ngena nangkkiss pala to gyys ng mga kaibigan,, babaeng kaibigan..',
+'- red flag guys nangppeck sa lips 🥺 as friends lang raw!! dw guys i get it okay 🥺🥺🥺',
+'- jusq guys anim bag nya,, nag urder siya ng shoulder bag.. kasi ano daw fuys one each for certain events/days.. gets (dalawa lang bag ko)',
+'- GUYS I FORGOT meron siyang 2 identical bags pero diff color,, red and black',
+'- leche typing raw "..." kasi may 3 spots yung puting kuting dito samen 😭😭 ',
+'- first time niya mag hair dye nung recog nung g11 guys buti pinayagan siya 😭',
+'- wala pang first kiss according sa repost nia guys ?? how come fuys 💔💔 (hope i get dat 😼)',
+'- naggrounded rin pala to guys 🥺',
+'- strict parents niya ',
+'- marami nagsasabi na ang soothing ng voice niyaa piro ayaw nia tanggapin!!! hmph!! lah balew?',
+'- soaper maeffort sia talaga sa mga art stuff e noh?',
+'- leche sobrang halata na ng hints mo be,, 💔',
+'- 5:30 raw sia nakakauwi mostly pero if more than, natraffic ean ',
+'- ayaw niya ng masyadong seruse sa group,, need niya ng jokes 🥺',
+'- cute magsabi ng "taposss" tapos yung mga vm nia angkyot ',
+'- siguro lahat or almost lahat ng vm nya may word na "like" or "taposss" hehehe',
+'- same kami ng curiosity about martial laww omgg SHE KEEPS SAYING MUEHEHEHE liek omg that phrase or word just makes me so.. so 😍😍 like u actually dunno how gorgeous that word is.. it expresses absolute joy and this feeling ":3" gawa ak website don ak mag coconfess,, sana maaccept?? ☹️',
+'- ENA NETO MY TOE SIS 😭😭😭 bro can match my weirdness 😭😭 #sogood'
+];
+let reasonIdx = 0;
+
+
+(function buildReasons() {
+  const wrap = document.getElementById('reasonsWrap');
+  reasons.forEach((r, i) => {
+    const card = document.createElement('div');
+    card.className = 'reason-card' + (i === 0 ? ' active' : '');
+    card.innerHTML = `<span>${r}</span>`;
+    wrap.appendChild(card);
+  });
+  updateReasonCounter();
+})();
+
+function updateReasonCounter() {
+  document.getElementById('reasonCounter').innerText = `${reasonIdx + 1} / ${reasons.length}`;
+}
+function showReason(idx) {
+  document.querySelectorAll('.reason-card').forEach((c, i) => c.classList.toggle('active', i === idx));
+  updateReasonCounter();
+}
+function nextReason() { if (reasonIdx < reasons.length - 1) { reasonIdx++; showReason(reasonIdx); } }
+function prevReason() { if (reasonIdx > 0) { reasonIdx--; showReason(reasonIdx); } }
+
+// ===== CAROUSEL =====
+let carouselIndex = 0;
+const carouselSlides = document.querySelectorAll('.carousel-slide');
+const dotsWrap = document.getElementById('carouselDots');
+carouselSlides.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => goToSlide(i);
+  dotsWrap.appendChild(d);
+});
+function updateCarousel() {
+  document.getElementById('carouselTrack').style.transform = `translateX(-${carouselIndex * 100}%)`;
+  document.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === carouselIndex));
+}
+function carouselNext() { carouselIndex = (carouselIndex + 1) % carouselSlides.length; updateCarousel(); }
+function carouselPrev() { carouselIndex = (carouselIndex - 1 + carouselSlides.length) % carouselSlides.length; updateCarousel(); }
+function goToSlide(i)   { carouselIndex = i; updateCarousel(); }
+setInterval(carouselNext, 4500);
+
+// ===== LIGHTBOX =====
+document.querySelectorAll('.img').forEach(img => {
+  img.addEventListener('click', e => {
+    img.classList.add('clicked');
+    setTimeout(() => img.classList.remove('clicked'), 350);
+    document.getElementById('lightboxImg').src = e.target.src;
+    document.getElementById('lightboxOverlay').style.display = 'flex';
+  });
+});
+
+// ===== SECTION 6 OVERLAYS =====
+let currentOverlay = 1;
+const overlays   = ['overlay1','overlay2','overlay3'].map(id => document.getElementById(id));
+const leftArrow  = document.getElementById('leftArrow');
+const rightArrow = document.getElementById('rightArrow');
+
+function updateOverlay() {
+  overlays.forEach(ov => {
+    ov.style.opacity = '0';
+    ov.style.transform = 'translateX(80px)';
+    ov.style.pointerEvents = 'none';
+  });
+  const a = overlays[currentOverlay - 1];
+  a.style.opacity = '1'; a.style.transform = 'translateX(0)'; a.style.pointerEvents = 'auto';
+  leftArrow.style.display  = currentOverlay === 1 ? 'none' : 'block';
+  rightArrow.style.display = currentOverlay === overlays.length ? 'none' : 'block';
+}
+function nextOverlay() { if (currentOverlay < overlays.length) { currentOverlay++; updateOverlay(); } }
+function prevOverlay() { if (currentOverlay > 1) { currentOverlay--; updateOverlay(); } }
+updateOverlay();
+
+// ===== NAV HISTORY =====
+const sectionHistory = [];
+
+function animateIn(el) {
+  el.style.display = 'flex';
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(28px)';
+  requestAnimationFrame(() => {
+    el.style.transition = 'opacity 0.5 ease, transform 0.5s ease';
+    el.style.opacity = '1';
+    el.style.transform = 'translateY(0)';
+    setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+  });
+}
+
+function showSection(id) {
+  const cur = document.querySelector('.dynamic-section[style*="display: flex"]');
+  if (cur) sectionHistory.push({ id: cur.id, scrollY: window.scrollY });
+  document.querySelectorAll('.dynamic-section').forEach(s => s.style.display = 'none');
+  wipe(() => animateIn(document.getElementById(id)));
+}
+
+function goBack() {
+  document.querySelectorAll('.dynamic-section').forEach(s => s.style.display = 'none');
+  if (sectionHistory.length === 0) {
+    const s6 = document.getElementById('section6');
+    s6.style.display = 'flex';
+    setTimeout(() => s6.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    return;
+  }
+  const prev = sectionHistory.pop();
+  if (prev.id === 'section6') {
+    const s6 = document.getElementById('section6');
+    s6.style.display = 'flex';
+    setTimeout(() => window.scrollTo({ top: prev.scrollY, behavior: 'smooth' }), 80);
+  } else {
+    animateIn(document.getElementById(prev.id));
+  }
+}
+
+function wipe(cb) {
+  const t = document.getElementById('page-transition');
+  t.style.transition = 'transform 0.3s ease';
+  t.style.transformOrigin = 'left';
+  t.style.transform = 'scaleX(1)';
+  setTimeout(() => {
+    cb();
+    t.style.transformOrigin = 'right';
+    t.style.transform = 'scaleX(0)';
+  }, 310);
+}
+
+// ===== DETAILS =====
+function showDetails() { showSection('section-details'); }
+
+// ===== SECRET REVEAL =====
+function openSecretReveal() { document.getElementById('secretReveal').style.display = 'flex'; }
+function closeSecretReveal() { document.getElementById('secretReveal').style.display = 'none'; }
+
+// ===== FINAL NOTE =====
+function showFinalNote() { document.getElementById('finalNote').style.display = 'flex'; }
+function closeFinalNote() { document.getElementById('finalNote').style.display = 'none'; }
+
+// ===== YES ENTRY =====
+let currentYes = 0;
+function showYes() {
+  currentYes = 0;
+  sectionHistory.push({ id: 'section6', scrollY: window.scrollY });
+  document.getElementById('section6').style.display = 'none';
+
+  const sec    = document.getElementById('yesSection');
+  const yesText= document.getElementById('yesText');
+  const btn    = document.getElementById('yesContinueBtn');
+  const typing = document.getElementById('yesTyping');
+
+  yesText.style.display = 'none';
+  btn.style.display     = 'none';
+  typing.classList.add('show');
+  animateIn(sec);
+
+  setTimeout(() => {
+    typing.classList.remove('show');
+    yesText.style.display = 'block';
+    yesText.innerHTML = 'wait… really? 😳';
+    setTimeout(() => {
+      typing.classList.add('show');
+      yesText.style.display = 'none';
+      setTimeout(() => {
+        typing.classList.remove('show');
+        yesText.style.display = 'block';
+        yesText.innerHTML = 'is dat true guys? muehehehe';
+        btn.style.display = 'inline-block';
+      }, 1400);
+    }, 1100);
+  }, 1400);
+
+  const r = ['💗','🎉','✨','💕','🌸','😍'];
+  for (let i = 0; i < 14; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'reaction';
+      el.innerText = r[Math.floor(Math.random() * r.length)];
+      el.style.left = (8 + Math.random() * 80) + 'vw';
+      el.style.top  = (15 + Math.random() * 65) + 'vh';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1200);
+    }, i * 100);
+  }
+
+  const colors = ['#ff69b4','#ffb3d1','#ffe0ec','#fff','#4CAF50','#6eb9e4'];
+  for (let i = 0; i < 36; i++) {
+    const c = document.createElement('div');
+    c.style.cssText = `position:fixed;width:7px;height:7px;background:${colors[i%colors.length]};top:0;left:${Math.random()*100}vw;opacity:0.85;z-index:9999;pointer-events:none;border-radius:50%;`;
+    document.body.appendChild(c);
+    let top = 0, speed = 3 + Math.random() * 4;
+    const f = setInterval(() => {
+      top += speed; c.style.top = top + 'px';
+      if (top > window.innerHeight) { c.remove(); clearInterval(f); }
+    }, 16);
+  }
+}
+
+// ===== NO ENTRY =====
+let currentNo = 0;
+function showNo() {
+  currentNo = 0;
+  sectionHistory.push({ id: 'section6', scrollY: window.scrollY });
+  document.getElementById('section6').style.display = 'none';
+
+  const sec    = document.getElementById('noSection');
+  const reply  = document.getElementById('fakeReply');
+  const box    = document.getElementById('answerBox');
+  const subBtn = document.getElementById('submitAnswerBtn');
+  const btn    = document.getElementById('noContinueBtn');
+  const typing = document.getElementById('noTyping');
+
+  reply.style.display  = 'none';
+  box.style.display    = 'none';
+  subBtn.style.display = 'none';
+  btn.style.display    = 'none';
+  typing.classList.add('show');
+  animateIn(sec);
+
+  setTimeout(() => {
+    typing.classList.remove('show');
+    reply.style.display  = 'block';
+    box.style.display    = 'block';
+    subBtn.style.display = 'inline-block';
+    const text = "I don't know what to say… 😭";
+    reply.innerHTML = '';
+    let i = 0;
+    const iv = setInterval(() => {
+      reply.innerHTML += text[i++];
+      if (i >= text.length) { clearInterval(iv); btn.style.display = 'inline-block'; }
+    }, 38);
+  }, 1800);
+}
+
+// ===== YES FLOW =====
+function nextYesSection() {
+  if (currentYes === 0) { showSection('yesCelebration'); currentYes = 1; }
+  else if (currentYes === 1) { showSection('yesFun'); currentYes = 2; }
+}
+function selectPlan(plan) { document.getElementById('planFeedback').innerText = 'You selected: ' + plan; }
+function submitCustomPlan() {
+  const v = document.getElementById('customPlan').value.trim();
+  if (v) document.getElementById('planFeedback').innerText = 'Your plan: ' + v + ' 💗';
+}
+
+// ===== NO FLOW =====
+function nextNoSection() {
+  if (currentNo === 0) { showSection('noComfort'); currentNo = 1; }
+  else if (currentNo === 1) { showSection('noFun'); currentNo = 2; }
+}
+function saveFriendReason() {
+  const v = document.getElementById('friendReason').value.trim();
+  if (v) document.getElementById('friendFeedback').innerText = 'You said: ' + v;
+}
+
+// ===== LEAVE A MESSAGE =====
+function submitMessage() {
+  const v = document.getElementById('messageBox').value.trim();
+  if (!v) return;
+  document.getElementById('messageCard').innerText = '"' + v + '"';
+  document.getElementById('messagePreview').style.display = 'block';
+  localStorage.setItem('chloe_message', v);
+}
+
+function finishFlow() {
+  showSection('endingSection');
+  setTimeout(showFinalNote, 1200);
+}
+
+// ===== MUSIC =====
+const music    = document.getElementById('bgMusic');
+const musicBtn = document.getElementById('musicBtn');
+music.volume   = 0.45;
+document.addEventListener('click', () => { if (music.paused) music.play().catch(()=>{}); }, { once: true });
+musicBtn.onclick = e => {
+  e.stopPropagation();
+  music.muted = !music.muted;
+  musicBtn.innerHTML = music.muted ? '🔇' : '🔊';
+};
+
+// ===== HEARTS ON CLICK =====
+const heartEmojis = ['❤️','💗','💕','🌸'];
+document.addEventListener('click', e => {
+  if (e.target.closest('button, #musicBtn, #quiz-overlay, .carousel-btn, .arrow-img, #secret-trigger')) return;
+  const h = document.createElement('div');
+  h.className  = 'heart';
+  h.innerText  = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+  h.style.left = e.clientX + 'px';
+  h.style.top  = e.clientY + 'px';
+  document.body.appendChild(h);
+  setTimeout(() => h.remove(), 950);
+}, { passive: true });
+
+// ===== QUIZ =====
+const quizData = [
+  { q: "adobo o sinigang?",   opts: ["adobo","sinigang","parehas",], ans: 1 },
+  { q: "crush mo b ko,,",      opts: ["oo","yes po","no choice","oonga"], ans: 1 },
+  { q: "math or science?",  opts: ["math","science","both","neither"], ans: 1 },
+  { q: "may chance b ak,,",     opts: ["miron","mejo","wala","secret"], ans: 1},
+];
+let qStep = 0, qScore = 0;
+
+function openQuiz() {
+  qStep = 0; qScore = 0;
+  document.getElementById('quiz-overlay').style.display = 'flex';
+  renderQuiz();
+}
+function closeQuiz() { document.getElementById('quiz-overlay').style.display = 'none'; }
+function renderQuiz() {
+  const box = document.getElementById('quiz-content');
+  if (qStep >= quizData.length) {
+    box.innerHTML = `
+      <div id="quiz-score">${qScore} / ${quizData.length}</div>
+      <p>${qScore === quizData.length ? "waw kelala ak!!" : qScore >= 2 ? "pretty good hah" : "di mo ata ako kilala e"}</p>
+      <button class="yes-btn" onclick="closeQuiz()" style="margin-top:18px; animation:none;">Close 💗</button>`;
+    return;
+  }
+  const q = quizData[qStep];
+  box.innerHTML = `
+    <p style="opacity:0.6; font-size:12px; margin-bottom:6px;">Question ${qStep+1} of ${quizData.length}</p>
+    <p class="quiz-question">${q.q}</p>
+    <div class="quiz-options">
+      ${q.opts.map((o,i) => `<button class="quiz-option" onclick="answerQuiz(${i},this)">${o}</button>`).join('')}
+    </div>`;
+}
+function answerQuiz(idx, el) {
+  const q = quizData[qStep];
+  document.querySelectorAll('.quiz-option').forEach(b => b.onclick = null);
+  el.classList.add(idx === q.ans ? 'correct' : 'wrong');
+  if (idx === q.ans) qScore++;
+  else document.querySelectorAll('.quiz-option')[q.ans].classList.add('correct');
+  setTimeout(() => { qStep++; renderQuiz(); }, 900);
+}
+</script>
+</body>
+</html>
